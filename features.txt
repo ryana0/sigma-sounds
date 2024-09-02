@@ -1,0 +1,8 @@
+features:
+-drum sequencer
+    -drum presets
+    -bpm changer
+    -import sounds
+-sampler
+-mixer
+-
