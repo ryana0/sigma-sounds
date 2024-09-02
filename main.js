@@ -5,6 +5,10 @@ const drumNameCatalog = {
     'bassKick': []
 }
 
+const activeCatalog = []
+
+
+
 const drumCatalog = {
     'kick': [],
     'snare': [],
@@ -28,8 +32,6 @@ function bpm2tbhb(bpm) {
     return tbhb
 }
 
-
-
 class Sequence {
     constructor(bpm) {
         this.bpm = bpm
@@ -43,19 +45,25 @@ class Sequence {
         this.tbhb = bpm2tbhb(newBpm)
     }
 
+    changeSequence() {
+
+    }
+
     start() {
         this.index = 0
             this.interval = setInterval(() => {
                 
                 console.log(this.index)
-                Object.keys(drumCatalog).forEach((key) => {
-                    drumCatalog[key].forEach((item) => {
-                        const drumSeq = item.sequence
-                        
-                        if(drumSeq[this.index] == 1) {
-                            item.play()
+                activeCatalog.forEach((drum) => {
+                    if(drum.sequence[this.index] == 1) {
+                        if(isPlaying(drum.audio)) {
+                            const newNode = drum.audio.cloneNode()
+                            newNode.volume = drum.prefVol
+                            newNode.play()
+                        } else {
+                            drum.play()
                         }
-                    })
+                    }
                 })
                 if(this.index == 15) {
                     this.index = 0
@@ -153,9 +161,16 @@ class Drum {
                 if(halfBeat.classList.contains('active')) {
                     halfBeat.classList.remove('active')
                     this.sequence[halfBeat.classList[1].split('-')[1]] = 0
+                    if (this.sequence.every(item => item ===0)) {
+                        activeCatalog.splice(activeCatalog.indexOf(this), 1)
+                    }
                 } else {
                     halfBeat.classList.add('active')
                     this.sequence[halfBeat.classList[1].split('-')[1]] = 1
+
+                    if (activeCatalog.indexOf(this) == -1) {
+                        activeCatalog.push(this)
+                    }
                 }
             })
             beatSequence.appendChild(halfBeat)
@@ -167,7 +182,6 @@ class Drum {
     }
 
     play() {
-        console.log(this.audio.volume)
         this.audio.play()
     }
 
